@@ -180,6 +180,18 @@
       footer{padding:1.5rem;flex-direction:column;gap:0.5rem;text-align:center}
     }
   </style>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -359,6 +371,56 @@
     document.getElementById('lightbox').addEventListener('click', function(e) { if (e.target === this) closeLightbox(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
     document.querySelectorAll('.strip-item img').forEach(img => { img.parentElement.addEventListener('click', () => openLightbox(img.src)); });
+  </script>
+
+  <script>
+    // Load settings from CMS
+    async function loadCMSData() {
+      try {
+        const res = await fetch('/data/settings.json');
+        if (!res.ok) return;
+        const s = await res.json();
+        
+        // Update name
+        document.querySelectorAll('[data-nl="Naam Schilder"]').forEach(el => {
+          el.setAttribute('data-nl', s.name);
+          el.setAttribute('data-en', s.name);
+          el.textContent = s.name;
+        });
+        
+        // Update contact details
+        const phone = document.querySelector('.contact-details a[href^="tel"]');
+        if (phone && s.phone) { phone.textContent = s.phone; phone.href = 'tel:' + s.phone.replace(/\s/g,''); }
+        
+        const email = document.querySelector('.contact-details a[href^="mailto"]');
+        if (email && s.email) { email.textContent = s.email; email.href = 'mailto:' + s.email; }
+
+        // Update area
+        document.querySelectorAll('[data-nl="Schilder · Hilversum"]').forEach(el => {
+          el.setAttribute('data-nl', 'Schilder · ' + s.area);
+          el.textContent = 'Schilder · ' + s.area;
+        });
+      } catch(e) { console.log('Settings not loaded yet'); }
+
+      // Load photos
+      try {
+        const strip = document.querySelector('.photo-strip');
+        if (!strip) return;
+        
+        // Try to fetch photo list
+        const photoFiles = await fetch('/data/photos/').catch(() => null);
+        // Photos loaded via direct img src from /images/ folder
+      } catch(e) {}
+
+      // Load approved reviews
+      try {
+        const grid = document.querySelector('.reviews-grid');
+        if (!grid) return;
+        // Reviews are managed via CMS - static display for now
+      } catch(e) {}
+    }
+
+    loadCMSData();
   </script>
 </body>
 </html>
