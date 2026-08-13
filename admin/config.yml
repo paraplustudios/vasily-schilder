@@ -1,0 +1,85 @@
+backend:
+  name: github
+  repo: paraplustudios/vasily-schilder
+  branch: main
+  base_url: https://vasily-schilder.pages.dev
+  auth_endpoint: /admin/auth
+
+media_folder: images
+public_folder: /images
+
+locale: nl
+
+collections:
+  - name: settings
+    label: Instellingen
+    files:
+      - name: general
+        label: Algemene instellingen
+        file: data/settings.json
+        fields:
+          - label: Naam schilder
+            name: name
+            widget: string
+          - label: Telefoonnummer
+            name: phone
+            widget: string
+          - label: E-mailadres
+            name: email
+            widget: string
+          - label: Werkgebied
+            name: area
+            widget: string
+            hint: bijv. Hilversum & omgeving
+
+  - name: photos
+    label: "Foto's toevoegen"
+    label_singular: Foto
+    folder: data/photos
+    create: true
+    slug: "{{fields.category}}-{{timestamp}}"
+    fields:
+      - label: Foto
+        name: image
+        widget: image
+      - label: Categorie
+        name: category
+        widget: select
+        options:
+          - label: Werk buiten
+            value: buiten
+          - label: Werk binnen
+            value: binnen
+          - label: Voor (voor het schilderen)
+            value: voor
+          - label: Na (na het schilderen)
+            value: na
+
+  - name: reviews
+    label: Ervaringen
+    label_singular: Ervaring
+    folder: data/reviews
+    create: true
+    slug: "{{timestamp}}"
+    fields:
+      - label: Naam
+        name: name
+        widget: string
+      - label: Locatie
+        name: location
+        widget: string
+        hint: bijv. Hilversum
+      - label: Beoordeling (1-5)
+        name: rating
+        widget: number
+        min: 1
+        max: 5
+        default: 5
+      - label: Tekst
+        name: text_nl
+        widget: text
+      - label: Goedgekeurd
+        name: approved
+        widget: boolean
+        default: false
+        hint: Vink aan om de review op de website te tonen
