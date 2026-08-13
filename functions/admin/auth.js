@@ -37,19 +37,16 @@ export async function onRequest(context) {
 <body>
 <script>
 (function() {
-  const token = ${JSON.stringify(token)};
-  const provider = 'github';
-  const message = 'authorization:' + provider + ':success:' + JSON.stringify({token: token, provider: provider});
-  
-  // Try postMessage to opener (popup flow)
-  if (window.opener) {
-    window.opener.postMessage(message, '*');
+  function receiveMessage(e) {
+    window.opener.postMessage(
+      'authorization:github:success:' + JSON.stringify({ token: ${JSON.stringify(token)}, provider: 'github' }),
+      e.origin
+    );
+    window.removeEventListener('message', receiveMessage, false);
     window.close();
-  } else {
-    // Fallback: store in sessionStorage and redirect
-    sessionStorage.setItem('netlify-cms-github-token', token);
-    window.location.href = '/admin/#token=' + encodeURIComponent(token);
   }
+  window.addEventListener('message', receiveMessage, false);
+  window.opener.postMessage('authorizing:github', '*');
 })();
 </script>
 <p>Authorizing... please wait.</p>
